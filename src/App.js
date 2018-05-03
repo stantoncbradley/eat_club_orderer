@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
-import {
-  Button,
-  FormGroup,
-  FormControl,
-  Clearfix,
-} from 'react-bootstrap';
+import { Clearfix } from 'react-bootstrap';
 import logo from './logo.svg';
 import './App.css';
+
+const urlhost = 'https://backend.com';
+
+const headers = { Accept: 'application/json' };
 
 const data = [
   {
@@ -63,37 +62,61 @@ const data = [
 
 const fontFamily = 'Montserrat';
 
-function FieldGroup({ id, label, ...props }) {
-  return (
-    <FormGroup controlId={id} className={props.className}>
-      <FormControl {...props} style={{ fontFamily }} />
-    </FormGroup>
-  );
+const getMealStyle = (index) => {
+  if (index < 0) return null;
+  const ratio = 360 / this.state.preferences.length;
+  return `hsl(${ratio * index}, 50%, 50%)`;
 }
 
 class App extends Component {
   constructor() {
     super();
     this.state = {
-      selectedMeals: [],
+      preferences: [],
+      meals: data,
     };
   }
 
-  onMealPick(id) {
-    const index = this.state.selectedMeals.indexOf(id);
-    if (index >= 0) {
-      const selectedMeals = [...this.state.selectedMeals];
-      selectedMeals.splice(index, 1);
-      this.setState({ selectedMeals });
-      return;
-    }
-    this.setState({ selectedMeals: this.state.selectedMeals.concat(id) });
+  componentDidMount() {
+    fetch(urlhost, { method: 'GET', headers })
+      .then((response) => {
+        if (!response.ok) return window.alert('There was an error loading data');
+        return response.text();
+      })
+      .then(responseText => JSON.parse(responseText))
+      .then(json => this.setState({ meals: json.meals }));
   }
 
-  getMealStyle(index) {
-    if (index < 0) return null;
-    const ratio = 360 / this.state.selectedMeals.length;
-    return `hsl(${ratio * index}, 50%, 50%)`;
+  onMealPick(id) {
+    const index = this.state.preferences.indexOf(id);
+    if (index >= 0) {
+      const preferences = [...this.state.preferences];
+      preferences.splice(index, 1);
+      this.setState({ preferences });
+      return;
+    }
+    this.setState({ preferences: this.state.preferences.concat(id) });
+  }
+
+  onSubmit(e) {
+    e.preventDefault();
+    const { email, password, preferences } = this.state;
+    fetch(urlhost, { method: 'POST', headers, body: { email, password, preferences } })
+      .then((response) => {
+        if (!response.ok) return window.alert('There was a problem');
+        return window.alert('Success!');
+      })
+      .catch(() => window.alert('There was a weird problem'));
+  }
+
+  onCancel() {
+    const { email, password } = this.state;
+    fetch(urlhost, { method: 'DELETE', body: { email, password } })
+      .then((response) => {
+        if (response.ok) return window.alert('Ordering canceled');
+        return window.alert('There was an error');
+      })
+      .catch(() => window.alert('There was a weird problem'));
   }
 
   render() {
@@ -123,30 +146,42 @@ class App extends Component {
                 margin: 20,
               }}
             >
-              <FieldGroup
-                id="formControlsEmail"
-                type="email"
-                label="Email address"
-                placeholder="email"
-
-              />
-              <FieldGroup
-                id="formControlsPassword"
-                label="Password"
-                type="password"
-                placeholder="password"
-              />
-              <Button
-                bsStyle="success"
-                disabled={this.state.selectedMeals.length < 1}
+              <div className="input-group col-6 col-md-6 col-sm-12 col-lg-6 col-xs-12">
+                <input
+                  type="email"
+                  placeholder="email"
+                  value={this.state.email}
+                  onChange={event => this.setState({ email: event.target.value })}
+                  className="form-control"
+                  style={{ borderRadius: 4, marginBottom: 10, fontFamily }}
+                />
+              </div>
+              <div className="input-group col-6 col-md-6 col-sm-12 col-lg-6 col-xs-12">
+                <input
+                  type="password"
+                  placeholder="password"
+                  value={this.state.password}
+                  onChange={event => this.setState({ password: event.target.value })}
+                  className="form-control"
+                  style={{ borderRadius: 4, marginBottom: 10, fontFamily }}
+                />
+              </div>
+              <button
+                className="btn btn-success"
+                disabled={this.state.preferences.length > 0}
                 style={{ marginRight: 10, fontFamily }}
-              >Submit</Button>
-              <Button bsStyle="danger" style={{ fontFamily }}>Cancel Orders</Button>
+                onClick={e => this.onSubmit(e)}
+              >Submit</button>
+              <button
+                className="btn btn-danger"
+                style={{ fontFamily }}
+                onClick={this.onCancel}
+              >Cancel Orders</button>
               <Clearfix visibleSmBlock />
             </div>
           </div>
-          {data.map((meal) => {
-            const index = this.state.selectedMeals.indexOf(meal.id);
+          {this.state.meals.map((meal) => {
+            const index = this.state.preferences.indexOf(meal.id);
             return (
               <div
                 key={meal.id}
@@ -161,8 +196,7 @@ class App extends Component {
                     style={{ }}
                   />
                 </div>
-                {/* <h4 style={[{ fontFamily: 'Garamond' }, this.getMealStyle(index)]} > */}
-                <h4 style={{ fontFamily, backgroundColor: this.getMealStyle(index), marginTop: 0, paddingTop: 5, paddingBottom: 5 }}>
+                <h4 style={{ fontFamily, backgroundColor: getMealStyle(index), marginTop: 0, paddingTop: 5, paddingBottom: 5 }}>
                   {index >= 0 ? index + 1 : ''} {meal.name}
                 </h4>
               </div>
