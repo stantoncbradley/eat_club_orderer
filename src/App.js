@@ -17,13 +17,6 @@ const getMealStyle = (index) => {
   return `hsl(${hue}, 75%, 75%)`;
 };
 
-const encodeData = data => (
-  Object.keys(data)
-    .map(key => [key, data[key]].map(encodeURIComponent).join('='))
-    .join('&')
-);
-
-
 class App extends Component {
   constructor() {
     super();
@@ -31,6 +24,10 @@ class App extends Component {
       preferences: [],
       meals: [],
     };
+  }
+
+  componentWillMount() {
+    this.updateDimensions();
   }
 
   componentDidMount() {
@@ -45,11 +42,6 @@ class App extends Component {
         this.setState({ meals: json.mealRepresentations });
       })
       .catch(e => window.alert('There was an error loading data'));
-  }
-
-
-  componentWillMount() {
-    this.updateDimensions();
   }
 
   componentWillUnmount() {
@@ -75,7 +67,7 @@ class App extends Component {
     fetch(urlhost, { method: 'POST', headers, body })
       .then((response) => {
         if (!response.ok) return window.alert('There was a problem');
-        return window.alert('Success!');
+        return window.alert("You're all set!");
       })
       .catch(() => window.alert('There was a weird problem'));
   }
@@ -83,7 +75,8 @@ class App extends Component {
   onCancel(e) {
     e.preventDefault();
     const { email, password } = this.state;
-    fetch(urlhost, { method: 'DELETE', body: { email, password } })
+    // fetch(urlhost, { method: 'DELETE', headers, body: JSON.stringify({ userRepresentation: { email, password } }) })
+    fetch(urlhost, { method: 'DELETE', headers })
       .then((response) => {
         if (response.ok) return window.alert('Ordering canceled');
         return window.alert('There was an error');
@@ -161,7 +154,7 @@ class App extends Component {
               <button
                 className="btn btn-danger"
                 style={{ fontFamily, marginBottom: 10 }}
-                onClick={this.onCancel}
+                onClick={e => this.onCancel(e)}
               >Cancel Ordering</button>
               <Clearfix visibleSmBlock />
             </div>
