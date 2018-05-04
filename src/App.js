@@ -3,62 +3,9 @@ import { Clearfix } from 'react-bootstrap';
 import logo from './logo.svg';
 import './App.css';
 
-const urlhost = 'https://backend.com';
+const urlhost = 'http://localhost:8080/';
 
 const headers = { Accept: 'application/json' };
-
-const data = [
-  {
-    id: 775245,
-    name: 'Butter Chicken',
-    imageUrl: 'https://myeatclub.a.ssl.fastly.net/im/11431/1487359594000/',
-  },
-  {
-    id: 775246,
-    name: 'Butter Chicken',
-    imageUrl: 'https://myeatclub.a.ssl.fastly.net/im/11431/1487359594000/',
-  },
-  {
-    id: 775247,
-    name: 'Butter Chicken',
-    imageUrl: 'https://myeatclub.a.ssl.fastly.net/im/11431/1487359594000/',
-  },
-  {
-    id: 775248,
-    name: 'Butter Chicken',
-    imageUrl: 'https://myeatclub.a.ssl.fastly.net/im/11431/1487359594000/',
-  },
-  {
-    id: 775249,
-    name: 'Butter Chicken',
-    imageUrl: 'https://myeatclub.a.ssl.fastly.net/im/11431/1487359594000/',
-  },
-  {
-    id: 775250,
-    name: 'Butter Chicken',
-    imageUrl: 'https://myeatclub.a.ssl.fastly.net/im/11431/1487359594000/',
-  },
-  {
-    id: 775251,
-    name: 'Butter Chicken',
-    imageUrl: 'https://myeatclub.a.ssl.fastly.net/im/11431/1487359594000/',
-  },
-  {
-    id: 775252,
-    name: 'Butter Chicken',
-    imageUrl: 'https://myeatclub.a.ssl.fastly.net/im/11431/1487359594000/',
-  },
-  {
-    id: 775253,
-    name: 'Butter Chicken',
-    imageUrl: 'https://myeatclub.a.ssl.fastly.net/im/11431/1487359594000/',
-  },
-  {
-    id: 7752464,
-    name: 'Butter Chicken',
-    imageUrl: 'https://myeatclub.a.ssl.fastly.net/im/11431/1487359594000/',
-  },
-];
 
 const fontFamily = 'Montserrat';
 
@@ -67,20 +14,33 @@ class App extends Component {
     super();
     this.state = {
       preferences: [],
-      meals: data,
+      meals: [],
     };
   }
 
   componentDidMount() {
+    window.addEventListener('resize', () => this.updateDimensions());
     fetch(urlhost, { method: 'GET', headers })
       .then((response) => {
         if (!response.ok) throw Error();
         return response.text();
       })
       .then(responseText => JSON.parse(responseText))
-      .then(json => this.setState({ meals: json.meals }))
+      .then((json) => {
+        this.setState({ meals: json.mealRepresentations });
+      })
       .catch(e => window.alert('There was an error loading data'));
   }
+
+
+  componentWillMount() {
+    this.updateDimensions();
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.updateDimensions);
+  }
+
 
   onMealPick(id) {
     const index = this.state.preferences.indexOf(id);
@@ -96,7 +56,7 @@ class App extends Component {
   onSubmit(e) {
     e.preventDefault();
     const { email, password, preferences } = this.state;
-    fetch(urlhost, { method: 'POST', headers, body: { email, password, preferences } })
+    fetch(urlhost, { method: 'POST', headers, body: { preferenceList: { userRepresentation: { email, password } }, preferences } })
       .then((response) => {
         if (!response.ok) return window.alert('There was a problem');
         return window.alert('Success!');
@@ -121,15 +81,23 @@ class App extends Component {
     return `hsl(${ratio * index}, 50%, 50%)`;
   }
 
+  getHeaderStyle() {
+    return this.state.width > 640
+      ? { overflow: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'center' }
+      : null;
+  }
+
+  updateDimensions() {
+    this.setState({ width: window.innerWidth });
+  }
+
   render() {
     return (
       <div
         className="App" style={{ maxWidth: 800, marginRight: 'auto', marginLeft: 'auto' }}
       >
         <form>
-          <div
-            style={{ overflow: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
-          >
+          <div style={this.getHeaderStyle()}>
             <div
               className="col-6 col-md-6 col-sm-12 col-lg-6 col-xs-12"
               style={{ overflow: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
@@ -145,7 +113,7 @@ class App extends Component {
               >Orderer</h1>
             </div>
             <div
-              className="col-6 col-md-6 col-sm-12 col-lg-6 col-xs-12"
+              className="col-6 col-md-6 col-sm-12 col-lg-6 col-xs-11"
               style={{
                 backgroundColor: '#555',
                 borderRadius: 4,
@@ -176,7 +144,7 @@ class App extends Component {
               </div>
               <button
                 className="btn btn-success"
-                disabled={this.state.preferences.length > 0}
+                disabled={this.state.preferences.length <= 0}
                 style={{ marginRight: 10, marginBottom: 10, fontFamily }}
                 onClick={e => this.onSubmit(e)}
               >Submit</button>
@@ -188,6 +156,7 @@ class App extends Component {
               <Clearfix visibleSmBlock />
             </div>
           </div>
+          {this.state.meals.length < 1 && <h4 style={{ fontFamily }}>Loading..</h4>}
           {this.state.meals.map((meal) => {
             const index = this.state.preferences.indexOf(meal.id);
             return (
@@ -204,9 +173,9 @@ class App extends Component {
                     style={{ }}
                   />
                 </div>
-                <h4 style={{ fontFamily, backgroundColor: this.getMealStyle(index), marginTop: 0, paddingTop: 5, paddingBottom: 5 }}>
+                <p style={{ fontFamily, backgroundColor: this.getMealStyle(index), marginTop: 0, paddingTop: 5, paddingBottom: 5 }}>
                   {index >= 0 ? index + 1 : ''} {meal.name}
-                </h4>
+                </p>
               </div>
             );
           },
