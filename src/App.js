@@ -80,11 +80,12 @@ class App extends Component {
   componentDidMount() {
     fetch(urlhost, { method: 'GET', headers })
       .then((response) => {
-        if (!response.ok) return window.alert('There was an error loading data');
+        if (!response.ok) throw Error();
         return response.text();
       })
       .then(responseText => JSON.parse(responseText))
-      .then(json => this.setState({ meals: json.meals }));
+      .then(json => this.setState({ meals: json.meals }))
+      .catch(e => window.alert('There was an error loading data'));
   }
 
   onMealPick(id) {
