@@ -3,7 +3,7 @@ import { Clearfix } from 'react-bootstrap';
 import logo from './logo.svg';
 import './App.css';
 
-const urlhost = 'http://192.168.132.172:8080/';
+const urlhost = 'https://eatclub-bot.herokuapp.com/';
 
 const headers = { Accept: 'application/json', 'Content-Type': 'application/json' };
 
