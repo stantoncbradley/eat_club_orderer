@@ -62,12 +62,6 @@ const data = [
 
 const fontFamily = 'Montserrat';
 
-const getMealStyle = (index) => {
-  if (index < 0) return null;
-  const ratio = 360 / this.state.preferences.length;
-  return `hsl(${ratio * index}, 50%, 50%)`;
-}
-
 class App extends Component {
   constructor() {
     super();
@@ -97,6 +91,12 @@ class App extends Component {
       return;
     }
     this.setState({ preferences: this.state.preferences.concat(id) });
+  }
+
+  getMealStyle(index) {
+    if (index < 0) return null;
+    const ratio = 360 / this.state.preferences.length;
+    return `hsl(${ratio * index}, 50%, 50%)`;
   }
 
   onSubmit(e) {
@@ -147,7 +147,7 @@ class App extends Component {
                 margin: 20,
               }}
             >
-              <div className="input-group col-6 col-md-6 col-sm-12 col-lg-6 col-xs-12">
+              <div className="input-group col-12 col-md-12 col-sm-12 col-lg-12 col-xs-12">
                 <input
                   type="email"
                   placeholder="email"
@@ -157,7 +157,7 @@ class App extends Component {
                   style={{ borderRadius: 4, marginBottom: 10, fontFamily }}
                 />
               </div>
-              <div className="input-group col-6 col-md-6 col-sm-12 col-lg-6 col-xs-12">
+              <div className="input-group col-12 col-md-12 col-sm-12 col-lg-12 col-xs-12">
                 <input
                   type="password"
                   placeholder="password"
@@ -197,7 +197,7 @@ class App extends Component {
                     style={{ }}
                   />
                 </div>
-                <h4 style={{ fontFamily, backgroundColor: getMealStyle(index), marginTop: 0, paddingTop: 5, paddingBottom: 5 }}>
+                <h4 style={{ fontFamily, backgroundColor: this.getMealStyle(index), marginTop: 0, paddingTop: 5, paddingBottom: 5 }}>
                   {index >= 0 ? index + 1 : ''} {meal.name}
                 </h4>
               </div>
