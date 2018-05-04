@@ -93,12 +93,6 @@ class App extends Component {
     this.setState({ preferences: this.state.preferences.concat(id) });
   }
 
-  getMealStyle(index) {
-    if (index < 0) return null;
-    const ratio = 360 / this.state.preferences.length;
-    return `hsl(${ratio * index}, 50%, 50%)`;
-  }
-
   onSubmit(e) {
     e.preventDefault();
     const { email, password, preferences } = this.state;
@@ -110,7 +104,8 @@ class App extends Component {
       .catch(() => window.alert('There was a weird problem'));
   }
 
-  onCancel() {
+  onCancel(e) {
+    e.preventDefault();
     const { email, password } = this.state;
     fetch(urlhost, { method: 'DELETE', body: { email, password } })
       .then((response) => {
@@ -120,13 +115,24 @@ class App extends Component {
       .catch(() => window.alert('There was a weird problem'));
   }
 
+  getMealStyle(index) {
+    if (index < 0) return null;
+    const ratio = 360 / this.state.preferences.length;
+    return `hsl(${ratio * index}, 50%, 50%)`;
+  }
+
   render() {
     return (
-      <div className="App" style={{ maxWidth: 800, marginRight: 'auto', marginLeft: 'auto' }}>
+      <div
+        className="App" style={{ maxWidth: 800, marginRight: 'auto', marginLeft: 'auto' }}
+      >
         <form>
-          <div style={{ overflow: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <div
+            style={{ overflow: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+          >
             <div
               className="col-6 col-md-6 col-sm-12 col-lg-6 col-xs-12"
+              style={{ overflow: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
             >
               <img
                 src={logo}
@@ -145,6 +151,7 @@ class App extends Component {
                 borderRadius: 4,
                 padding: 20,
                 margin: 20,
+                paddingBottom: 10,
               }}
             >
               <div className="input-group col-12 col-md-12 col-sm-12 col-lg-12 col-xs-12">
@@ -170,12 +177,12 @@ class App extends Component {
               <button
                 className="btn btn-success"
                 disabled={this.state.preferences.length > 0}
-                style={{ marginRight: 10, fontFamily }}
+                style={{ marginRight: 10, marginBottom: 10, fontFamily }}
                 onClick={e => this.onSubmit(e)}
               >Submit</button>
               <button
                 className="btn btn-danger"
-                style={{ fontFamily }}
+                style={{ fontFamily, marginBottom: 10 }}
                 onClick={this.onCancel}
               >Cancel Orders</button>
               <Clearfix visibleSmBlock />
