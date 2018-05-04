@@ -3,11 +3,26 @@ import { Clearfix } from 'react-bootstrap';
 import logo from './logo.svg';
 import './App.css';
 
-const urlhost = 'http://localhost:8080/';
+const urlhost = 'http://192.168.132.172:8080/';
 
-const headers = { Accept: 'application/json' };
+const headers = { Accept: 'application/json', 'Content-Type': 'application/json' };
 
 const fontFamily = 'Montserrat';
+
+const getMealStyle = (index) => {
+  if (index < 0) return null;
+  const initial = 60 + 360 + 360; // start at yellow with mod 360 * 2
+  const ratio = 20;
+  const hue = (initial - (ratio * index)) % 360;
+  return `hsl(${hue}, 75%, 75%)`;
+};
+
+const encodeData = data => (
+  Object.keys(data)
+    .map(key => [key, data[key]].map(encodeURIComponent).join('='))
+    .join('&')
+);
+
 
 class App extends Component {
   constructor() {
@@ -56,7 +71,8 @@ class App extends Component {
   onSubmit(e) {
     e.preventDefault();
     const { email, password, preferences } = this.state;
-    fetch(urlhost, { method: 'POST', headers, body: { preferenceList: { userRepresentation: { email, password } }, preferences } })
+    const body = JSON.stringify({ userRepresentation: { email, password }, preferences });
+    fetch(urlhost, { method: 'POST', headers, body })
       .then((response) => {
         if (!response.ok) return window.alert('There was a problem');
         return window.alert('Success!');
@@ -73,12 +89,6 @@ class App extends Component {
         return window.alert('There was an error');
       })
       .catch(() => window.alert('There was a weird problem'));
-  }
-
-  getMealStyle(index) {
-    if (index < 0) return null;
-    const ratio = 360 / this.state.preferences.length;
-    return `hsl(${ratio * index}, 50%, 50%)`;
   }
 
   getHeaderStyle() {
@@ -152,7 +162,7 @@ class App extends Component {
                 className="btn btn-danger"
                 style={{ fontFamily, marginBottom: 10 }}
                 onClick={this.onCancel}
-              >Cancel Orders</button>
+              >Cancel Ordering</button>
               <Clearfix visibleSmBlock />
             </div>
           </div>
@@ -166,14 +176,14 @@ class App extends Component {
                 onClick={() => this.onMealPick(meal.id)}
                 role="button"
               >
-                <div style={{ opacity: index >= 0 ? 0.5 : 1 }}>
+                <div style={{ opacity: index >= 0 ? 0.60 : 1 }}>
                   <img
                     src={meal.imageUrl}
                     className="img-responsive"
                     style={{ }}
                   />
                 </div>
-                <p style={{ fontFamily, backgroundColor: this.getMealStyle(index), marginTop: 0, paddingTop: 5, paddingBottom: 5 }}>
+                <p style={{ fontFamily, backgroundColor: getMealStyle(index), marginTop: 0, padding: 5 }}>
                   {index >= 0 ? index + 1 : ''} {meal.name}
                 </p>
               </div>
