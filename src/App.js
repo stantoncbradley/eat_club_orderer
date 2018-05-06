@@ -23,6 +23,7 @@ class App extends Component {
     this.state = {
       preferences: [],
       meals: [],
+      imageHeight: undefined,
     };
   }
 
@@ -84,6 +85,15 @@ class App extends Component {
       .catch(() => window.alert('There was a weird problem'));
   }
 
+  onImageLoad(image) {
+    // debugger;
+    if (this.state.imageHeight) return;
+    this.setState({
+      imageHeight: image.nativeEvent.currentTarget.offsetWidth * 0.667,
+      // imageWidth: image.offsetWidth,
+    });
+  }
+
   getHeaderStyle() {
     return this.state.width > 640
       ? { overflow: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'center' }
@@ -97,7 +107,7 @@ class App extends Component {
   render() {
     return (
       <div
-        className="App" style={{ maxWidth: 800, marginRight: 'auto', marginLeft: 'auto' }}
+        className="App" style={{ maxWidth: 900, marginRight: 'auto', marginLeft: 'auto' }}
       >
         <form>
           <div style={this.getHeaderStyle()}>
@@ -173,10 +183,11 @@ class App extends Component {
                   <img
                     src={meal.imageUrl}
                     className="img-responsive"
-                    style={{ }}
+                    style={{ height: this.state.imageHeight }}
+                    onLoad={image => this.onImageLoad(image)}
                   />
                 </div>
-                <p style={{ fontFamily, backgroundColor: getMealStyle(index), marginTop: 0, padding: 5 }}>
+                <p style={{ textAlign: 'left', fontFamily, backgroundColor: getMealStyle(index), height: 90, padding: 5 }}>
                   {index >= 0 ? index + 1 : ''} {meal.name}
                 </p>
               </div>
